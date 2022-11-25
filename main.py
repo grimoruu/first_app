@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
+app.add_route()
 
 @app.get("/student/")
 def students():

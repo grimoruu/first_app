@@ -1,8 +1,8 @@
-"""second
+"""init base tables
 
-Revision ID: 8761871f8bd6
-Revises: 5e5c6098b2b3
-Create Date: 2022-11-24 21:42:43.301797
+Revision ID: ecb3cc821d80
+Revises: 
+Create Date: 2022-11-25 18:07:36.407631
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '8761871f8bd6'
-down_revision = '5e5c6098b2b3'
+revision = 'ecb3cc821d80'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -25,7 +25,6 @@ def upgrade() -> None:
     sa.Column('email', sa.String(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
-    sa.UniqueConstraint('id'),
     sa.UniqueConstraint('username')
     )
     op.create_table('boards',
@@ -40,6 +39,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('board_id', sa.Integer(), nullable=True),
+    sa.Column('ordering', sa.Integer(), server_default='0', nullable=False),
     sa.ForeignKeyConstraint(['board_id'], ['boards.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
@@ -49,9 +49,9 @@ def upgrade() -> None:
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('list_id', sa.Integer(), nullable=True),
+    sa.Column('ordering', sa.Integer(), server_default='0', nullable=False),
     sa.ForeignKeyConstraint(['list_id'], ['lists.id'], ),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id')
+    sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
 
