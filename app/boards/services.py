@@ -1,13 +1,17 @@
-from sqlalchemy.engine import Row
-
 from app.boards.dao import get_boards
-from app.boards.schemas import BoardSchema
+from app.boards.schemas import BoardSchema, UsersSomeSchema
 
 
-def get_boards_service():  #-> list[Row]
+def get_boards_service():  # -> list[Row]
     rows = get_boards()
-    data_on = [BoardSchema(**row, user=dict(**row)) for row in rows]
-    return data_on
-
-
-get_boards_service()
+    return [
+        BoardSchema(
+            **row,
+            user=UsersSomeSchema(
+                id=row.user_id,
+                username=row.user_username,
+                email=row.user_email,
+            )
+        )
+        for row in rows
+    ]

@@ -8,6 +8,6 @@ class UsersSomeSchema(BaseModel):
 
 
 class BoardSchema(BaseModel):
-    id_1: int
+    id: int
     name: str
     user: UsersSomeSchema
