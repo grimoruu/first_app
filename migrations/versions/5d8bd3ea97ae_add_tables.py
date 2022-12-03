@@ -1,8 +1,8 @@
-"""init base tables
+"""add tables
 
-Revision ID: ecb3cc821d80
+Revision ID: 5d8bd3ea97ae
 Revises: 
-Create Date: 2022-11-25 18:07:36.407631
+Create Date: 2022-11-26 14:33:43.798194
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ecb3cc821d80'
+revision = '5d8bd3ea97ae'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -32,8 +32,7 @@ def upgrade() -> None:
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id')
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('lists',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -42,7 +41,7 @@ def upgrade() -> None:
     sa.Column('ordering', sa.Integer(), server_default='0', nullable=False),
     sa.ForeignKeyConstraint(['board_id'], ['boards.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id')
+    sa.UniqueConstraint('board_id', 'ordering', name='boards_ordering_uc')
     )
     op.create_table('tasks',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -51,7 +50,8 @@ def upgrade() -> None:
     sa.Column('list_id', sa.Integer(), nullable=True),
     sa.Column('ordering', sa.Integer(), server_default='0', nullable=False),
     sa.ForeignKeyConstraint(['list_id'], ['lists.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('list_id', 'ordering', name='lists_ordering_uc')
     )
     # ### end Alembic commands ###
 

@@ -12,6 +12,6 @@ class Task(Base):
     list_id = Column(Integer, ForeignKey('lists.id'))
     ordering = Column(Integer, nullable=False, server_default='0')
 
-    # __table_args__ = (
-    #     UniqueConstraint('list_id', 'ordering', name='_customer_location_uc')
-    # )
+    __table_args__ = (
+        UniqueConstraint('list_id', 'ordering', name='lists_ordering_uc'),
+    )
