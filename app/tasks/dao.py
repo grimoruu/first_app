@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.engine import Row
+
 from db.db import engine
 from db.models import Task
 

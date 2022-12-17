@@ -150,6 +150,14 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "ndicts"
+version = "0.1.0"
+description = "Class to handle nested dictionaries"
+category = "main"
+optional = false
+python-versions = ">=3.8,<4.0"
+
+[[package]]
 name = "packaging"
 version = "21.3"
 description = "Core utilities for Python packages"
@@ -234,6 +242,14 @@ wcwidth = "*"
 [package.extras]
 checkqa-mypy = ["mypy (==v0.761)"]
 testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xmlschema"]
+
+[[package]]
+name = "ruff"
+version = "0.0.155"
+description = "An extremely fast Python linter, written in Rust."
+category = "main"
+optional = false
+python-versions = ">=3.7"
 
 [[package]]
 name = "sniffio"
@@ -331,7 +347,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "fa7cd97f289c12e58c5f8459aae4b3544759418979c78fbb68c5e263093557f4"
+content-hash = "b4a9545d5b0a1057bab10a5be29d288d13efdfef8d6cc21cb64621d72a107845"
 
 [metadata.files]
 alembic = []
@@ -347,6 +363,7 @@ idna = []
 mako = []
 markupsafe = []
 more-itertools = []
+ndicts = []
 packaging = []
 pluggy = []
 psycopg2-binary = []
@@ -354,6 +371,7 @@ py = []
 pydantic = []
 pyparsing = []
 pytest = []
+ruff = []
 sniffio = []
 sqlalchemy = []
 starlette = []

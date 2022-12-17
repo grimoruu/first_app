@@ -1,9 +1,7 @@
 from sqlalchemy import select
-from sqlalchemy.engine import Row
 from sqlalchemy.orm import Session
 
 from core.db_utils import to_nested_list
-from db.db import engine
 from db.models import Board, User
 
 
@@ -18,9 +16,7 @@ def get_boards(db: Session) -> list[dict]:
         )
         .select_from(Board)
         .join(User)
+        .where(User.id == Board.user_id)
     )
     result = db.execute(query)
     return to_nested_list(result.fetchall())
-
-
-

@@ -12,6 +12,8 @@ SQLAlchemy = "^1.4.44"
 alembic = "^1.8.1"
 psycopg2-binary = "^2.9.5"
 username = "^2.1.0"
+ruff = "^0.0.155"
+ndicts = "^0.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -19,3 +21,8 @@ pytest = "^5.2"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 120
+select = ["F", "E", "I", "U", "N", "C", "B", "A", "T", "Q", "ANN", "RUF"]
+ignore = ["A003", "ANN101", "Q000", "E902"]

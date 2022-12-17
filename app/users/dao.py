@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.engine import Row
+
 from db.db import engine
 from db.models import User
 
@@ -9,6 +10,3 @@ def get_users() -> list[Row]:
     with engine.connect() as conn:
         result = conn.execute(query)
         return result.fetchall()
-
-
-get_users()
