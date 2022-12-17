@@ -2,7 +2,7 @@
 name = "first_app"
 version = "0.1.0"
 description = ""
-authors = ["grimoruu grimoruu@yandex.ru"]
+authors = ["grimoruu <grimoruu@yandex.ru>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
