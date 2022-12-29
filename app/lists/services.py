@@ -1,11 +1,14 @@
+from sqlalchemy.orm import Session
+
 from app.lists.dao import get_lists
 from app.lists.schemas import ListSchema
 
 
-def get_lists_service() -> list:
-    rows = get_lists()
+def get_lists_service(db: Session) -> list:
+    rows = get_lists(db)
     return [
-        ListSchema(**row) for row in rows
+        ListSchema(
+            **row
+         )
+        for row in rows
     ]
-
-

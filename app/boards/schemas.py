@@ -1,10 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class UsersSomeSchema(BaseModel):
     id: int
     username: str
-    email: str
+    email: EmailStr
 
 
 class BoardSchema(BaseModel):

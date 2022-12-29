@@ -38,7 +38,7 @@ def to_nested_dict1(row: dict) -> dict[str, Any]:
 
 @speed_test_dec(1_000)
 def to_nested_dict2(a: str, row: dict) -> dict:
-    print(a)
+    # print(a)
     nd = NestedDict()
     for key, value in row.items():
         n_key = tuple(key.split('__'))

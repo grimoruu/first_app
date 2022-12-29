@@ -14,6 +14,10 @@ psycopg2-binary = "^2.9.5"
 username = "^2.1.0"
 ruff = "^0.0.155"
 ndicts = "^0.1.0"
+pyjwt = "^2.6.0"
+argon2 = "^0.1.10"
+pydantic = {extras = ["email"], version = "^1.10.2"}
+passlib = {extras = ["argon2"], version = "^1.7.4"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
