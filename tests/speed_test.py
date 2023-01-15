@@ -8,12 +8,10 @@ from ndicts.ndicts import NestedDict
 def speed_test_dec(try_count: int = 1_000):
     def _decorator(func: Callable[[Any], None]):
         def _wrapper(*args, **kwargs):
-            print(try_count)
             start = time()
             for _ in range(try_count):
                 func(*args, **kwargs)
             end = time()
-            print(end - start)
 
         return _wrapper
 

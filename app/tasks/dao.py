@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.engine import Row
 from sqlalchemy.orm import Session
 
-from db.models import Task, List
+from db.models import List, Task
 
 
 def get_tasks(db: Session) -> list[Row]:

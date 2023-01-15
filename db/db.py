@@ -13,7 +13,6 @@ Base = declarative_base()
 
 def get_db() -> None:
     db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    yield db
+    db.commit()
+    db.close()
