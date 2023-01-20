@@ -22,6 +22,9 @@ passlib = {extras = ["argon2"], version = "^1.7.4"}
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 
+[tool.poetry.group.dev.dependencies]
+mypy = "^0.991"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
@@ -29,4 +32,6 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 line-length = 120
 select = ["F", "E", "I", "U", "N", "C", "B", "A", "T", "Q", "ANN", "RUF"]
-ignore = ["A003", "ANN101", "Q000", "E902"]
+ignore = ["A003", "ANN101", "Q000", "E902", "B008", "B904"]
+
+exclude = ["tests", ".venv", ".db"]

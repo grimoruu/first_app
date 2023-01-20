@@ -12,7 +12,7 @@ class LoginUserSchema(BaseModel):
     password: str
 
 
-class Token(BaseModel):
+class JWTResponse(BaseModel):
     access_token: str
     refresh_token: str
 
