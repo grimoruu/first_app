@@ -8,7 +8,7 @@ def get_tasks_service(db: Session) -> list:
     rows = get_tasks(db=db)
     return [
         TaskSchema(
-            **row
+            **_
         )
-        for row in rows
+        for _ in rows
     ]

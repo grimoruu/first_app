@@ -18,5 +18,4 @@ def get_boards(db: Session) -> list[dict]:
         .join(User)
         .where(User.id == Board.user_id)
     )
-    result = db.execute(query)
-    return to_nested_list(result.fetchall())
+    return to_nested_list(db.execute(query).fetchall())

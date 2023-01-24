@@ -8,7 +8,7 @@ def get_users_service(db: Session) -> list[UserSchema]:
     rows = get_users(db)
     return [
         UserSchema(
-            **row
+            **_
          )
-        for row in rows
+        for _ in rows
     ]

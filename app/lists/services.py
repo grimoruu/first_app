@@ -8,7 +8,7 @@ def get_lists_service(db: Session) -> list:
     rows = get_lists(db)
     return [
         ListSchema(
-            **row
+            **_
          )
-        for row in rows
+        for _ in rows
     ]

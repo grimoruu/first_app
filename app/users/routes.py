@@ -11,5 +11,3 @@ router = APIRouter()
 @router.get("", response_model=list[UserSchema])
 def get_all_users_api(db: Session = Depends(get_db)) -> list[UserSchema]:
     return get_users_service(db=db)
-
-

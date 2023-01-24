@@ -1,4 +1,7 @@
+from typing import Any
+
 from sqlalchemy import exists, insert, select
+from sqlalchemy.engine import Row
 from sqlalchemy.orm import Session
 
 from db.models import User
@@ -34,16 +37,15 @@ def add_new_user(username: str, hashed_password: str, email: str, db: Session) -
     return db.execute(query).scalar_one()
 
 
-def login_user(email: str, db: Session) -> [list]:
+def login_user(email: str, db: Session) -> Row | Any:
     """
     Login user
     """
     select_query = (
         select(
             User.id,
-            User.hashed_password
+            User.hashed_password,
         )
         .select_from(User)
-        .where(User.email == email)
-    )
+        .where(User.email == email))
     return db.execute(select_query).fetchone()

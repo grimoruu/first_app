@@ -37,8 +37,7 @@ def login_user_services(payload: LoginUserSchema, db: Session = Depends(get_db))
     if not verify_password(payload.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail='Incorrect Password')
-    user_id = user.id
-    tokens = create_jwt_tokens(user_id)
+    tokens = create_jwt_tokens(user.id)
     return JWTResponse(access_token=tokens.access_token,
                        refresh_token=tokens.refresh_token)
 

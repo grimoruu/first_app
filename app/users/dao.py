@@ -15,5 +15,4 @@ def get_users(db: Session) -> list[Row]:
         )
         .select_from(User)
     )
-    result = db.execute(query)
-    return result.fetchall()
+    return db.execute(query).fetchall()

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import jwt
 from argon2 import PasswordHasher, exceptions
@@ -31,14 +31,15 @@ def verify_password(password: str, encoded_password: str) -> bool:
 
 def create_token(
         user_id: int,
-        expiration_time: timedelta = ExpirationTime,
-        scope_auth: str = ScopeAuthEnum,
-        secret_key: str = SecretKeys) -> str:
+        *,
+        expiration_time: ExpirationTime,
+        scope_auth: ScopeAuthEnum,
+        secret_key: SecretKeys) -> str:
     """
     Create access or refresh token
     """
     payload = {
-        'exp': datetime.utcnow() + expiration_time,
+        'exp': datetime.utcnow() + expiration_time.value,
         'iat': datetime.utcnow(),
         'scope': scope_auth,
         'user_id': user_id
@@ -52,8 +53,9 @@ def create_token(
 
 def decode_token(
         token: str,
-        scope_auth: str = ScopeAuthEnum,
-        secret_key: str = SecretKeys) -> int:
+        *,
+        scope_auth: ScopeAuthEnum,
+        secret_key: SecretKeys) -> int:
     """
     Decode access token or refresh token
     """
@@ -68,30 +70,38 @@ def decode_token(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
 
 
-def get_user_by_token(token: str = Header(..., alias="authorization")) -> int:
-    if token.split()[0] != "Bearer":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not using the Bearer schema")
-    return decode_access_token(token.split()[1])
+def get_user_by_token(authorization: str = Header(..., alias="authorization")) -> int:
+    try:
+        type_, token = authorization.split()
+        if type_ != "Bearer":
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not using the Bearer schema")
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    return decode_access_token(token)
 
 
 def create_jwt_tokens(user_id: int) -> JWTResponse:
     access_token = create_token(
         user_id,
-        ExpirationTime.ACCESS_TOKEN_EXPIRE_TIME.value,
-        ScopeAuthEnum.ACCESS.value,
-        SecretKeys.JWT_ACCESS_SECRET_KEY.value)
+        expiration_time=ExpirationTime.ACCESS_TOKEN_EXPIRE_TIME,
+        scope_auth=ScopeAuthEnum.ACCESS,
+        secret_key=SecretKeys.JWT_ACCESS_SECRET_KEY)
     refresh_token = create_token(
         user_id,
-        ExpirationTime.REFRESH_TOKEN_EXPIRE_TIME.value,
-        ScopeAuthEnum.REFRESH.value,
-        SecretKeys.JWT_REFRESH_SECRET_KEY.value)
+        expiration_time=ExpirationTime.REFRESH_TOKEN_EXPIRE_TIME,
+        scope_auth=ScopeAuthEnum.REFRESH,
+        secret_key=SecretKeys.JWT_REFRESH_SECRET_KEY)
     return JWTResponse(access_token=access_token,
                        refresh_token=refresh_token)
 
 
 def decode_access_token(token: str) -> int:
-    return decode_token(token, ScopeAuthEnum.ACCESS.value, SecretKeys.JWT_ACCESS_SECRET_KEY.value)
+    return decode_token(token=token,
+                        scope_auth=ScopeAuthEnum.ACCESS,
+                        secret_key=SecretKeys.JWT_ACCESS_SECRET_KEY)
 
 
 def decode_refresh_token(token: str) -> int:
-    return decode_token(token, ScopeAuthEnum.REFRESH.value, SecretKeys.JWT_REFRESH_SECRET_KEY.value)
+    return decode_token(token=token,
+                        scope_auth=ScopeAuthEnum.REFRESH,
+                        secret_key=SecretKeys.JWT_REFRESH_SECRET_KEY)

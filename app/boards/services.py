@@ -8,7 +8,7 @@ def get_boards_service(db: Session) -> list[BoardSchema]:
     rows = get_boards(db)
     return [
         BoardSchema(
-            **row
+            **_
          )
-        for row in rows
+        for _ in rows
     ]
