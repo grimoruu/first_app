@@ -40,3 +40,7 @@ exclude = ["tests", ".venv", ".db"]
 
 [tool.mypy]
 plugins = "sqlalchemy.ext.mypy.plugin"
+
+[[tool.mypy.overrides]]
+module = ["ndicts.*"]
+ignore_missing_imports = true
