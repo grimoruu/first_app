@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, UniqueConstraint
 
 from db.db import Base
 
@@ -11,6 +11,7 @@ class Task(Base):
     description = Column(String, nullable=True)
     list_id = Column(Integer, ForeignKey('lists.id'))
     ordering = Column(Integer, nullable=False, server_default='0')
+    is_deleted = Column(Boolean, server_default="false")
 
     __table_args__ = (
         UniqueConstraint('list_id', 'ordering', name='lists_ordering_uc'),

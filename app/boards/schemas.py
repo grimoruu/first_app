@@ -11,3 +11,16 @@ class BoardSchema(BaseModel):
     id: int
     name: str
     user: UsersSomeSchema
+
+
+class BoardResponse(BaseModel):
+    board_id: int
+    name: str
+
+
+class BoardNameSchema(BaseModel):
+    name: str
+
+
+class BoardNameResponse(BaseModel):
+    name: str
