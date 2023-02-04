@@ -1,13 +1,13 @@
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.lists.dao import add_new_list, delete_list, get_lists, get_lists_ordering, swap_lists_ordering, update_list
-from app.lists.schemas import ListNameSchema, ListResponse, ListSchema
+from app.lists.dao import add_list, delete_list, get_lists, get_lists_ordering, swap_lists_ordering, update_list
+from app.lists.schemas import ListResponse, ListSchema
 from db.db import get_db
 
 
-def get_lists_service(user_id: int, board_id: int, db: Session) -> list:
-    rows = get_lists(user_id, board_id, db)
+def get_lists_service(board_id: int, user_id: int, db: Session) -> list:
+    rows = get_lists(board_id=board_id, user_id=user_id, db=db)
     return [
         ListSchema(
             **_
@@ -16,57 +16,35 @@ def get_lists_service(user_id: int, board_id: int, db: Session) -> list:
     ]
 
 
-def create_list_services(user_id: int,
-                         board_id: int,
-                         name: ListNameSchema,
+def create_list_services(name: str, board_id: int, user_id: int, db: Session = Depends(get_db)) -> ListResponse:
+    ordering = get_lists_ordering(board_id=board_id, db=db)
+    list_ = add_list(name=name, board_id=board_id, ordering=ordering, user_id=user_id, db=db)
+    if list_ is None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail="Performing an operation on someone else's board")
+    else:
+        return ListResponse(list_id=list_[0], name=list_[1], board_id=list_[2])
+
+
+def update_list_services(list_id: int, name: str, board_id: int, user_id: int,
                          db: Session = Depends(get_db)) -> ListResponse:
-    ordering = get_lists_ordering(db=db)
-    list_id = add_new_list(user_id, board_id, name.name, ordering, db)
-    if list_id is None:
+    list_ = update_list(list_id=list_id, name=name, board_id=board_id, user_id=user_id, db=db)
+    if list_ is None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="Performing an operation on someone else's board")
     else:
-        return ListResponse(list_id=list_id, board_id=board_id, name=name.name)
+        return ListResponse(list_id=list_[0], name=list_[1], board_id=list_[2])
 
 
-def swap_lists_by_ordering_services(user_id: int,
-                                    board_id: int,
-                                    first_list: int,
-                                    second_list: int,
-                                    db: Session = Depends(get_db)) -> str:
-    swap_status = swap_lists_ordering(user_id=user_id,
-                                      board_id=board_id,
-                                      first_list=first_list,
-                                      second_list=second_list,
-                                      db=db)
-
-    if swap_status is None:
+def delete_list_services(list_id: int, board_id: int, user_id: int, db: Session = Depends(get_db)) -> ListResponse:
+    list_ = delete_list(list_id=list_id, board_id=board_id, user_id=user_id, db=db)
+    if list_ is None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="Performing an operation on someone else's board")
     else:
-        return swap_status
+        return ListResponse(list_id=list_[0], name=list_[1], board_id=list_[2])
 
 
-def delete_list_services(user_id: int,
-                         board_id: int,
-                         list_id: int,
-                         db: Session = Depends(get_db)) -> ListResponse:
-    list_name = delete_list(user_id=user_id, board_id=board_id, list_id=list_id, db=db)
-    if list_name is None:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail="Performing an operation on someone else's board")
-    else:
-        return ListResponse(list_id=list_id, board_id=board_id, name=list_name)
-
-
-def update_list_services(user_id: int,
-                         board_id: int,
-                         list_id: int,
-                         name: ListNameSchema,
-                         db: Session = Depends(get_db)) -> ListResponse:
-    list_name = update_list(user_id=user_id, board_id=board_id, list_id=list_id, name=name.name, db=db)
-    if list_name is None:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail="Performing an operation on someone else's board")
-    else:
-        return ListResponse(list_id=list_id, board_id=board_id, name=list_name)
+def swap_lists_by_ordering_services(list_: list, board_id: int, user_id: int, db: Session = Depends(get_db)) -> str:
+    swap_lists_ordering(list_=list_, board_id=board_id, user_id=user_id, db=db)
+    return "Ok"

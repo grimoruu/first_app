@@ -18,9 +18,14 @@ class BoardResponse(BaseModel):
     name: str
 
 
-class BoardNameSchema(BaseModel):
+class BoardCreateSchema(BaseModel):
     name: str
 
 
-class BoardNameResponse(BaseModel):
+class BoardUpdateSchema(BaseModel):
+    board_id: int
     name: str
+
+
+class BoardDeleteSchema(BaseModel):
+    board_id: int

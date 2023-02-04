@@ -16,6 +16,27 @@ class TaskResponse(BaseModel):
     list_id: int
 
 
-class TaskNameDescSchema(BaseModel):
+class TasksGetSchema(BaseModel):
+    list_id: int
+    board_id: int
+
+
+class TaskCreateSchema(BaseModel):
     name: str
     description: str
+    list_id: int
+    board_id: int
+
+
+class TaskUpdateSchema(BaseModel):
+    task_id: int
+    name: str
+    description: str
+    list_id: int
+    board_id: int
+
+
+class TaskDeleteSchema(BaseModel):
+    task_id: int
+    list_id: int
+    board_id: int

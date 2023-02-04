@@ -1,37 +1,36 @@
-from sqlalchemy import desc, insert, select, update, asc
+from sqlalchemy import desc, insert, select, update
 from sqlalchemy.engine import Row
 from sqlalchemy.orm import Session
 
-from db.models import List, Task, Board
+from db.models import Board, List, Task
 
 
-def get_task_ordering(db: Session) -> int:
+def get_task_ordering(list_id: int, board_id: int, db: Session) -> int:
     try:
         query = (
             select(Task.ordering)
+            .join(List)
+            .where(Task.list_id == list_id, List.board_id == board_id)
             .order_by(desc(Task.ordering))
-            .select_from(Task)
         )
-        return db.execute(query).fetchall()[0][0]
+        return db.execute(query).fetchall()[0][0] + 1
     except IndexError:
-        return 0
+        return 1
 
 
-def check_true_users(user_id: int, board_id: int, list_id: int, db: Session) -> bool:
+def check_true_users(list_id: int, board_id: int, user_id: int, db: Session) -> bool:
     query_select_user = (
         select(Board.user_id)
         .join(List)
         .where(Board.id == board_id, List.id == list_id)
-        .select_from(Board)
     )
-    result = db.execute(query_select_user).scalar_one()
-    if result == user_id:
+    if db.execute(query_select_user).scalar_one() == user_id:
         return True
     else:
         return False
 
 
-def get_tasks(user_id: int, board_id: int, list_id: int, db: Session) -> list[Row]:
+def get_tasks(list_id: int, board_id: int, user_id: int, db: Session) -> list[Row]:
     query = (
         select(
             Task.id,
@@ -40,7 +39,6 @@ def get_tasks(user_id: int, board_id: int, list_id: int, db: Session) -> list[Ro
             Task.list_id,
             Task.ordering,
         )
-        .select_from(Task)
         .join(List, Task.list_id == List.id)
         .join(Board, List.board_id == Board.id)
         .where(List.id == list_id,
@@ -52,53 +50,51 @@ def get_tasks(user_id: int, board_id: int, list_id: int, db: Session) -> list[Ro
     return db.execute(query).fetchall()
 
 
-def add_new_task(user_id: int, board_id: int, list_id: int,
-                 name: str, description: str, ordering: int, db: Session) -> int | None:
-
-    if check_true_users(user_id, board_id, list_id, db):
+def add_task(name: str, description: str, list_id: int, ordering: int, board_id: int,
+             user_id: int, db: Session) -> Row | None:
+    if check_true_users(list_id=list_id, board_id=board_id, user_id=user_id, db=db):
         query = (
             insert(Task)
             .values(
                 name=name,
                 description=description,
                 list_id=list_id,
-                ordering=ordering + 1
+                ordering=ordering
             )
-            .returning(Task.id)
+            .returning(Task.id, Task.name, Task.description, Task.list_id)
         )
-        return db.execute(query).scalar_one()
+        return db.execute(query).fetchone()
     else:
         return None
 
 
-def update_task(user_id: int, board_id: int, list_id: int,
-                task_id: int, task_name: str, task_description: str, db: Session) -> int | None:
-
-    if check_true_users(user_id, board_id, list_id, db):
+def update_task(task_id: int, name: str, description: str, list_id: int, board_id: int,
+                user_id: int, db: Session) -> Row | None:
+    if check_true_users(list_id=list_id, board_id=board_id, user_id=user_id, db=db):
         query = (
             update(Task)
             .where(Task.id == task_id)
             .values(
-                name=task_name,
-                description=task_description
+                name=name,
+                description=description
             )
-            .returning(Task.id)
+            .returning(Task.id, Task.name, Task.description, Task.list_id)
         )
-        return db.execute(query).scalar_one()
+        return db.execute(query).fetchone()
     else:
         return None
 
 
-def delete_task(user_id: int, board_id: int, list_id: int, task_id: int, db: Session) -> Row | None:
-    if check_true_users(user_id, board_id, list_id, db):
+def delete_task(task_id: int, list_id: int, board_id: int, user_id: int, db: Session) -> Row | None:
+    if check_true_users(list_id=list_id, board_id=board_id, user_id=user_id, db=db):
         query = (
             update(Task)
             .where(Task.id == task_id)
             .values(
                 is_deleted=True
             )
-            .returning(Task.name, Task.description)
+            .returning(Task.id, Task.name, Task.description, Task.list_id)
         )
-        return db.execute(query).fetchall()[0]
+        return db.execute(query).fetchone()
     else:
         return None
