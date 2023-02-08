@@ -19,7 +19,7 @@ argon2 = "^0.1.10"
 pydantic = {extras = ["email"], version = "^1.10.2"}
 passlib = {extras = ["argon2"], version = "^1.7.4"}
 sqlalchemy = {extras = ["mypy"], version = "^1.4.46"}
-strenum = "^0.4.9"
+black = "^23.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -44,3 +44,6 @@ plugins = "sqlalchemy.ext.mypy.plugin"
 [[tool.mypy.overrides]]
 module = ["ndicts.*"]
 ignore_missing_imports = true
+
+[tool.black]
+line-length = 120

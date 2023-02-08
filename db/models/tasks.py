@@ -4,15 +4,13 @@ from db.db import Base
 
 
 class Task(Base):
-    __tablename__ = 'tasks'
+    __tablename__ = "tasks"
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     description = Column(String, nullable=True)
-    list_id = Column(Integer, ForeignKey('lists.id'))
-    ordering = Column(Integer, nullable=False, server_default='0')
+    list_id = Column(Integer, ForeignKey("lists.id"))
+    ordering = Column(Integer, nullable=False, server_default="0")
     is_deleted = Column(Boolean, server_default="false")
 
-    __table_args__ = (
-        UniqueConstraint('list_id', 'ordering', name='lists_ordering_uc'),
-    )
+    __table_args__ = (UniqueConstraint("list_id", "ordering", name="lists_ordering_uc"),)

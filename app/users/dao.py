@@ -6,13 +6,10 @@ from db.models import User
 
 
 def get_users(db: Session) -> list[Row]:
-    query = (
-        select(
-            User.id,
-            User.username,
-            User.hashed_password,
-            User.email,
-        )
-        .select_from(User)
-    )
+    query = select(
+        User.id,
+        User.username,
+        User.hashed_password,
+        User.email,
+    ).select_from(User)
     return db.execute(query).fetchall()

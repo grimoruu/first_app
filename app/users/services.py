@@ -6,9 +6,4 @@ from app.users.schemas import UserSchema
 
 def get_users_service(db: Session) -> list[UserSchema]:
     rows = get_users(db)
-    return [
-        UserSchema(
-            **_
-         )
-        for _ in rows
-    ]
+    return [UserSchema(**_) for _ in rows]

@@ -19,11 +19,7 @@ def get_task_ordering(list_id: int, board_id: int, db: Session) -> int:
 
 
 def check_true_users(list_id: int, board_id: int, user_id: int, db: Session) -> bool:
-    query_select_user = (
-        select(Board.user_id)
-        .join(List)
-        .where(Board.id == board_id, List.id == list_id)
-    )
+    query_select_user = select(Board.user_id).join(List).where(Board.id == board_id, List.id == list_id)
     if db.execute(query_select_user).scalar_one() == user_id:
         return True
     else:
@@ -41,26 +37,30 @@ def get_tasks(list_id: int, board_id: int, user_id: int, db: Session) -> list[Ro
         )
         .join(List, Task.list_id == List.id)
         .join(Board, List.board_id == Board.id)
-        .where(List.id == list_id,
-               Board.id == board_id,
-               Board.user_id == user_id,
-               Task.is_deleted.is_(False))
+        .where(
+            List.id == list_id,
+            Board.id == board_id,
+            Board.user_id == user_id,
+            Task.is_deleted.is_(False),
+        )
         .order_by(Task.ordering)
     )
     return db.execute(query).fetchall()
 
 
-def add_task(name: str, description: str, list_id: int, ordering: int, board_id: int,
-             user_id: int, db: Session) -> Row | None:
+def add_task(
+    name: str,
+    description: str,
+    list_id: int,
+    ordering: int,
+    board_id: int,
+    user_id: int,
+    db: Session,
+) -> Row | None:
     if check_true_users(list_id=list_id, board_id=board_id, user_id=user_id, db=db):
         query = (
             insert(Task)
-            .values(
-                name=name,
-                description=description,
-                list_id=list_id,
-                ordering=ordering
-            )
+            .values(name=name, description=description, list_id=list_id, ordering=ordering)
             .returning(Task.id, Task.name, Task.description, Task.list_id)
         )
         return db.execute(query).fetchone()
@@ -68,16 +68,20 @@ def add_task(name: str, description: str, list_id: int, ordering: int, board_id:
         return None
 
 
-def update_task(task_id: int, name: str, description: str, list_id: int, board_id: int,
-                user_id: int, db: Session) -> Row | None:
+def update_task(
+    task_id: int,
+    name: str,
+    description: str,
+    list_id: int,
+    board_id: int,
+    user_id: int,
+    db: Session,
+) -> Row | None:
     if check_true_users(list_id=list_id, board_id=board_id, user_id=user_id, db=db):
         query = (
             update(Task)
             .where(Task.id == task_id)
-            .values(
-                name=name,
-                description=description
-            )
+            .values(name=name, description=description)
             .returning(Task.id, Task.name, Task.description, Task.list_id)
         )
         return db.execute(query).fetchone()
@@ -90,9 +94,7 @@ def delete_task(task_id: int, list_id: int, board_id: int, user_id: int, db: Ses
         query = (
             update(Task)
             .where(Task.id == task_id)
-            .values(
-                is_deleted=True
-            )
+            .values(is_deleted=True)
             .returning(Task.id, Task.name, Task.description, Task.list_id)
         )
         return db.execute(query).fetchone()

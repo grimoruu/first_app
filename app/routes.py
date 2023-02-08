@@ -8,8 +8,8 @@ from app.users.routes import router as users_router
 
 router = APIRouter()
 
-router.include_router(users_router, prefix='/users', tags=['users'])
-router.include_router(boards_router, prefix='/boards', tags=['board'])
-router.include_router(lists_router, prefix='/lists', tags=['list'])
-router.include_router(tasks_router, prefix='/tasks', tags=['task'])
-router.include_router(auth_router, prefix='/auth', tags=['auth'])
+router.include_router(users_router, prefix="/users", tags=["users"])
+router.include_router(boards_router, prefix="/boards", tags=["board"])
+router.include_router(lists_router, prefix="/lists", tags=["list"])
+router.include_router(tasks_router, prefix="/tasks", tags=["task"])
+router.include_router(auth_router, prefix="/auth", tags=["auth"])

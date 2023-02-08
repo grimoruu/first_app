@@ -11,13 +11,7 @@ def check_users_exist(email: str, db: Session) -> bool:
     """
     Checking if a user exists during registration
     """
-    query = (
-        exists(
-            select(User.id)
-            .where(User.email == email)
-        )
-        .select()
-    )
+    query = exists(select(User.id).where(User.email == email)).select()
     return db.execute(query).scalar_one()
 
 
@@ -37,7 +31,7 @@ def add_new_user(username: str, hashed_password: str, email: str, db: Session) -
     return db.execute(query).scalar_one()
 
 
-def login_user(email: str, db: Session) -> Row | Any:
+def login_user(email: str, db: Session) -> Row | None:
     """
     Login user
     """
@@ -47,5 +41,6 @@ def login_user(email: str, db: Session) -> Row | Any:
             User.hashed_password,
         )
         .select_from(User)
-        .where(User.email == email))
+        .where(User.email == email)
+    )
     return db.execute(select_query).fetchone()

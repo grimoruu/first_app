@@ -4,10 +4,4 @@ from db.models.lists import List
 from db.models.tasks import Task
 from db.models.users import User
 
-__all__ = [
-    'Base',
-    'User',
-    'Board',
-    'List',
-    'Task'
-]
+__all__ = ["Base", "User", "Board", "List", "Task"]

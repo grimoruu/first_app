@@ -7,7 +7,8 @@ from app.lists.schemas import (
     ListResponse,
     ListSchema,
     ListsGetSchema,
-    ListUpdateSchema, Ordering,
+    ListUpdateSchema,
+    Ordering,
 )
 from app.lists.services import (
     create_list_services,
@@ -23,36 +24,45 @@ router = APIRouter()
 
 
 @router.get("", status_code=status.HTTP_200_OK, response_model=list[ListSchema])
-def get_boards_all_lists_api(list_: ListsGetSchema,
-                             user_id: int = Depends(get_user_by_token),
-                             db: Session = Depends(get_db)) -> list[ListSchema]:
-    return get_lists_service(board_id=list_.board_id, user_id=user_id, db=db)
+def get_boards_all_lists_api(
+    list_: ListsGetSchema,
+    user_id: int = Depends(get_user_by_token),
+    db: Session = Depends(get_db),
+) -> list[ListSchema]:
+    return get_lists_service(list_=list_, user_id=user_id, db=db)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=ListResponse)
-def create_list_api(list_: ListCreateSchema,
-                    user_id: int = Depends(get_user_by_token),
-                    db: Session = Depends(get_db)) -> ListResponse:
-    return create_list_services(name=list_.name, board_id=list_.board_id, user_id=user_id, db=db)
+def create_list_api(
+    list_: ListCreateSchema,
+    user_id: int = Depends(get_user_by_token),
+    db: Session = Depends(get_db),
+) -> ListResponse:
+    return create_list_services(list_=list_, user_id=user_id, db=db)
 
 
 @router.patch("", status_code=status.HTTP_200_OK, response_model=ListResponse)
-def update_list_api(list_: ListUpdateSchema,
-                    user_id: int = Depends(get_user_by_token),
-                    db: Session = Depends(get_db)) -> ListResponse:
-    return update_list_services(list_id=list_.list_id, name=list_.name, board_id=list_.board_id,
-                                user_id=user_id, db=db)
+def update_list_api(
+    list_: ListUpdateSchema,
+    user_id: int = Depends(get_user_by_token),
+    db: Session = Depends(get_db),
+) -> ListResponse:
+    return update_list_services(list_=list_, user_id=user_id, db=db)
 
 
 @router.delete("", status_code=status.HTTP_200_OK, response_model=ListResponse)
-def delete_list_api(list_: ListDeleteSchema,
-                    user_id: int = Depends(get_user_by_token),
-                    db: Session = Depends(get_db)) -> ListResponse:
-    return delete_list_services(list_id=list_.list_id, board_id=list_.board_id, user_id=user_id, db=db)
+def delete_list_api(
+    list_: ListDeleteSchema,
+    user_id: int = Depends(get_user_by_token),
+    db: Session = Depends(get_db),
+) -> ListResponse:
+    return delete_list_services(list_=list_, user_id=user_id, db=db)
 
 
 @router.put("/order", status_code=status.HTTP_200_OK)
-def swap_list_api(list_: Ordering,
-                  user_id: int = Depends(get_user_by_token),
-                  db: Session = Depends(get_db)) -> str:
-    return swap_lists_by_ordering_services(list_=list_.ordering, board_id=list_.board_id, user_id=user_id, db=db)
+def swap_list_api(
+    list_: Ordering,
+    user_id: int = Depends(get_user_by_token),
+    db: Session = Depends(get_db),
+) -> str:
+    return swap_lists_by_ordering_services(list_=list_, user_id=user_id, db=db)

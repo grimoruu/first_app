@@ -23,14 +23,7 @@ def get_users_board(user_id: int, db: Session) -> list[dict]:
 
 
 def add_board(name: str, user_id: int, db: Session) -> Row | None:
-    query = (
-        insert(Board)
-        .values(
-            name=name,
-            user_id=user_id
-        )
-        .returning(Board.id, Board.name)
-    )
+    query = insert(Board).values(name=name, user_id=user_id).returning(Board.id, Board.name)
     return db.execute(query).fetchone()
 
 
@@ -38,9 +31,7 @@ def update_board(board_id: int, name: str, user_id: int, db: Session) -> Row | N
     query = (
         update(Board)
         .where(Board.id == board_id, Board.user_id == user_id)
-        .values(
-            name=name
-        )
+        .values(name=name)
         .returning(Board.id, Board.name)
     )
     return db.execute(query).fetchone()
@@ -50,22 +41,14 @@ def delete_board(board_id: int, user_id: int, db: Session) -> Row | None:
     query = (
         update(Board)
         .where(Board.id == board_id, Board.user_id == user_id)
-        .values(
-            is_deleted=True
-        )
+        .values(is_deleted=True)
         .returning(Board.id, Board.name)
     )
     return db.execute(query).fetchone()
 
 
 def check_board_exist(board_id: int, user_id: int, db: Session) -> bool:
-    query = (
-        exists(
-            select(Board.is_deleted)
-            .where(Board.id == board_id,
-                   Board.user_id == user_id,
-                   Board.is_deleted.is_(True))
-        )
-        .select()
-    )
+    query = exists(
+        select(Board.is_deleted).where(Board.id == board_id, Board.user_id == user_id, Board.is_deleted.is_(True))
+    ).select()
     return db.execute(query).scalar_one()
