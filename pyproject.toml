@@ -34,12 +34,14 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 line-length = 120
 select = ["F", "E", "I", "U", "N", "C", "B", "A", "T", "Q", "ANN", "RUF"]
-ignore = ["A003", "ANN101", "Q000", "E902", "B008", "B904"]
+ignore = ["A003", "ANN101", "ANN401", "Q000", "E902", "B008", "B904"]
 
-exclude = ["tests", ".venv", ".db"]
+exclude = ["tests", ".venv", ".db", "venv", "experiment folder"]
 
 [tool.mypy]
 plugins = "sqlalchemy.ext.mypy.plugin"
+
+exclude = ["tests", ".venv", ".db", "venv", "migrations", "experiment folder"]
 
 [[tool.mypy.overrides]]
 module = ["ndicts.*"]

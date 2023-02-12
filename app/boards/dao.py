@@ -1,3 +1,5 @@
+from typing import Any
+
 from sqlalchemy import exists, insert, select, update
 from sqlalchemy.engine import Row
 from sqlalchemy.orm import Session
@@ -22,29 +24,32 @@ def get_users_board(user_id: int, db: Session) -> list[dict]:
     return to_nested_list(db.execute(query).fetchall())
 
 
-def add_board(name: str, user_id: int, db: Session) -> Row | None:
+def fetch_one_(query: Any, db: Session) -> Row:
+    row = db.execute(query).fetchone()  # type: ignore
+    if not row:
+        raise Exception()
+    return row
+
+
+def _fetch_one_or_none(query: Any, db: Session) -> Row | None:
+    return db.execute(query).fetchone()
+
+
+def add_board(name: str, user_id: int, db: Session) -> Row:
     query = insert(Board).values(name=name, user_id=user_id).returning(Board.id, Board.name)
-    return db.execute(query).fetchone()
+    return fetch_one_(query, db)
 
 
-def update_board(board_id: int, name: str, user_id: int, db: Session) -> Row | None:
+def update_board(board_id: int, name: str, user_id: int, db: Session) -> None:
+    query = update(Board).where(Board.id == board_id, Board.user_id == user_id).values(name=name)
+    db.execute(query)
+
+
+def delete_board(board_id: int, user_id: int, db: Session) -> None:
     query = (
-        update(Board)
-        .where(Board.id == board_id, Board.user_id == user_id)
-        .values(name=name)
-        .returning(Board.id, Board.name)
+        update(Board).where(Board.id == board_id, Board.user_id == user_id).values(is_deleted=True).returning(Board.id)
     )
-    return db.execute(query).fetchone()
-
-
-def delete_board(board_id: int, user_id: int, db: Session) -> Row | None:
-    query = (
-        update(Board)
-        .where(Board.id == board_id, Board.user_id == user_id)
-        .values(is_deleted=True)
-        .returning(Board.id, Board.name)
-    )
-    return db.execute(query).fetchone()
+    db.execute(query)
 
 
 def check_board_exist(board_id: int, user_id: int, db: Session) -> bool:

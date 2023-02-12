@@ -13,7 +13,7 @@ def create_user_services(payload: CreateUserSchema, db: Session = Depends(get_db
     """
     # Check if user already exist
     if check_users_exist(payload.email, db):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Account already exist")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Account already exist")
     # Hash the password
     else:
         hashed_password = encode_password(payload.password)
@@ -30,12 +30,12 @@ def login_user_services(payload: LoginUserSchema, db: Session = Depends(get_db))
     # Check if the user exist
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Account dont exist or Incorrect Email",
         )
     # Check if the password is valid
     if not verify_password(payload.password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Incorrect Password")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect Password")
     tokens = create_jwt_tokens(user.id)
     return JWTResponse(access_token=tokens.access_token, refresh_token=tokens.refresh_token)
 

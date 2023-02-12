@@ -7,7 +7,7 @@ class UsersSomeSchema(BaseModel):
     email: EmailStr
 
 
-class BoardSchema(BaseModel):
+class BoardSchemaResponse(BaseModel):
     id: int
     name: str
     user: UsersSomeSchema
@@ -23,9 +23,4 @@ class BoardCreateSchema(BaseModel):
 
 
 class BoardUpdateSchema(BaseModel):
-    board_id: int
     name: str
-
-
-class BoardDeleteSchema(BaseModel):
-    board_id: int

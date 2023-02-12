@@ -1,44 +1,26 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from app.boards.dao import add_board, check_board_exist, delete_board, get_users_board, update_board
-from app.boards.schemas import BoardResponse, BoardSchema, BoardCreateSchema, BoardUpdateSchema, BoardDeleteSchema
+from app.boards.dao import add_board, delete_board, get_users_board, update_board
+from app.boards.schemas import BoardCreateSchema, BoardResponse, BoardSchemaResponse, BoardUpdateSchema
 from db.db import get_db
 
 
-def get_boards_service(user_id: int, db: Session = Depends(get_db)) -> list[BoardSchema]:
+def get_boards_service(user_id: int, db: Session = Depends(get_db)) -> list[BoardSchemaResponse]:
     rows = get_users_board(user_id, db)
-    return [BoardSchema(**row) for row in rows]
+    return [BoardSchemaResponse(**row) for row in rows]
 
 
-def create_board_services(board: BoardCreateSchema, user_id: int, db: Session = Depends(get_db)) -> BoardResponse:
-    board = add_board(**board.dict(), user_id=user_id, db=db)
-    if board is None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Performing an operation on someone else's board",
-        )
-    else:
-        return BoardResponse(board_id=board.id, name=board.name)
+def create_board_services(board_: BoardCreateSchema, user_id: int, db: Session = Depends(get_db)) -> BoardResponse:
+    board = add_board(**board_.dict(), user_id=user_id, db=db)
+    return BoardResponse(board_id=board.id, name=board.name)
 
 
-def update_board_services(board: BoardUpdateSchema, user_id: int, db: Session = Depends(get_db)) -> BoardResponse:
-    board = update_board(**board.dict(), user_id=user_id, db=db)
-    if board is None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Performing an operation on someone else's board",
-        )
-    else:
-        return BoardResponse(board_id=board.id, name=board.name)
+def update_board_services(
+    board_id: int, board_: BoardUpdateSchema, user_id: int, db: Session = Depends(get_db)
+) -> None:
+    return update_board(**board_.dict(), board_id=board_id, user_id=user_id, db=db)
 
 
-def delete_board_services(board: BoardDeleteSchema, user_id: int, db: Session = Depends(get_db)) -> BoardResponse:
-    if check_board_exist(**board.dict(), user_id=user_id, db=db):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Board already deleted")
-    else:
-        board = delete_board(**board.dict(), user_id=user_id, db=db)
-        if board is None:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Board dont exist")
-        else:
-            return BoardResponse(board_id=board.id, name=board.name)
+def delete_board_services(board_id: int, user_id: int, db: Session = Depends(get_db)) -> None:
+    return delete_board(board_id=board_id, user_id=user_id, db=db)

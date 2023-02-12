@@ -13,11 +13,11 @@ def signup_user(payload: CreateUserSchema, db: Session = Depends(get_db)) -> JWT
     return create_user_services(payload=payload, db=db)
 
 
-@router.post("/login", status_code=status.HTTP_202_ACCEPTED, response_model=JWTResponse)
+@router.post("/login", status_code=status.HTTP_200_OK, response_model=JWTResponse)
 def login_user(payload: LoginUserSchema, db: Session = Depends(get_db)) -> JWTResponse:
     return login_user_services(payload=payload, db=db)
 
 
-@router.post("/refresh", status_code=status.HTTP_202_ACCEPTED, response_model=JWTResponse)
+@router.post("/refresh", status_code=status.HTTP_201_CREATED, response_model=JWTResponse)
 def refresh_access_token(payload: RefreshTokenSchema) -> JWTResponse:
     return refresh_access_token_services(payload=payload)

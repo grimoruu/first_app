@@ -1,5 +1,3 @@
-from typing import Any
-
 from sqlalchemy import exists, insert, select
 from sqlalchemy.engine import Row
 from sqlalchemy.orm import Session

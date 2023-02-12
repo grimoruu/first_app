@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class TaskSchema(BaseModel):
+class TaskSchemaResponse(BaseModel):
     id: int
     name: str
     description: str
@@ -16,27 +16,16 @@ class TaskResponse(BaseModel):
     list_id: int
 
 
-class TasksGetSchema(BaseModel):
-    list_id: int
-    board_id: int
-
-
 class TaskCreateSchema(BaseModel):
     name: str
     description: str
-    list_id: int
-    board_id: int
 
 
 class TaskUpdateSchema(BaseModel):
-    task_id: int
     name: str
     description: str
-    list_id: int
-    board_id: int
 
 
-class TaskDeleteSchema(BaseModel):
-    task_id: int
-    list_id: int
-    board_id: int
+class TaskOrdering(BaseModel):
+    new_list_id: int
+    prev_task_ordering: float
