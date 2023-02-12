@@ -94,10 +94,7 @@ def lists_ordering_change(
             )
             next_list_ordering = db.execute(select_next_ord).scalar_one()
         except NoResultFound:
-            select_next_ord = (
-                select(List.ordering).where(List.ordering == prev_list_ordering).order_by(List.ordering).limit(1)
-            )
-            next_list_ordering = db.execute(select_next_ord).scalar_one() + 1
+            next_list_ordering = prev_list_ordering + 1
         ordering_ = (next_list_ordering + prev_list_ordering) / 2
         query = update(List).where(List.id == list_id).values(ordering=ordering_).returning(List.ordering)
         res = db.execute(query).scalar_one()
