@@ -71,19 +71,8 @@ def tasks_ordering_change(task_id: int, ordering: float, new_list_id: int, db: S
 
 
 def update_all_task_ordering(list_id: int, db: Session) -> None:
-    t2 = aliased(Task)
-    r = func.row_number().over(order_by=t2.ordering)
-    query = (
-        update(Task)
-        .values(
-            ordering=(
-                select(t2.id, r)
-                .select_from(t2)
-                .join(Task, Task.id == t2.id)
-                .where(t2.id == list_id)
-                .order_by(t2.ordering)
-            )
-        )
-        .where(Task.id == t2.id, Task.list_id == list_id)
-    )
-    print(db.execute(query))
+    subq = select(Task.id, func.row_number().over(order_by=Task.ordering).label("row_num")).select_from(Task)\
+        .where(Task.list_id == list_id).subquery()
+    query = update(Task).values(ordering=subq.c.row_num).where(Task.list_id == list_id, Task.id == subq.c.id)
+    db.execute(query)
+
