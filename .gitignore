@@ -4,6 +4,6 @@ __pycache__
 trash
 .db
 .ruff_cache
-tests
 .mypy_cache
 experiment folder
+venv

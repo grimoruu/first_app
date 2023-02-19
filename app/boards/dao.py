@@ -46,9 +46,7 @@ def update_board(board_id: int, name: str, user_id: int, db: Session) -> None:
 
 
 def delete_board(board_id: int, user_id: int, db: Session) -> None:
-    query = (
-        update(Board).where(Board.id == board_id, Board.user_id == user_id).values(is_deleted=True).returning(Board.id)
-    )
+    query = update(Board).where(Board.id == board_id, Board.user_id == user_id).values(is_deleted=True)
     db.execute(query)
 
 

@@ -1,0 +1,3 @@
+1,test01,"$argon2id$v=19$m=65536,t=3,p=4$TKxG0eHPQ+wmO76SPawa2w$3xR38ijPiDwCMbtNkGq/e1K6FnJyH+u++tJ9yk9VVT8",test01@mail.com
+2,test02,"$argon2id$v=19$m=65536,t=3,p=4$SfOJzcEQyrdLPDYZuT41ow$dAGXW7BQZVNo4InAw++g+OfJvmjYgqN50mfPDXGOUEc",test02@mail.com
+3,test03,"$argon2id$v=19$m=65536,t=3,p=4$guMjGUlyB8YyLfFPxq1yxg$/AquGszivzLZ506kSpDXDRR19mIOQCJjYNrieLssdBA",test03@mail.com

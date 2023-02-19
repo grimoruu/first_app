@@ -7,7 +7,6 @@ from app.lists.routes import router as lists_router
 from core.auth_utils.auth import get_user_by_token
 from db.db import get_db
 
-
 router = APIRouter()
 
 

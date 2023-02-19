@@ -6,7 +6,7 @@ from db.db import Base
 class Board(Base):
     __tablename__ = "boards"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"))
     is_deleted = Column(Boolean, server_default="false")

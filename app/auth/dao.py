@@ -6,17 +6,11 @@ from db.models import User
 
 
 def check_users_exist(email: str, db: Session) -> bool:
-    """
-    Checking if a user exists during registration
-    """
     query = exists(select(User.id).where(User.email == email)).select()
     return db.execute(query).scalar_one()
 
 
 def add_new_user(username: str, hashed_password: str, email: str, db: Session) -> int:
-    """
-    Adding a new user
-    """
     query = (
         insert(User)
         .values(
@@ -30,9 +24,6 @@ def add_new_user(username: str, hashed_password: str, email: str, db: Session) -
 
 
 def login_user(email: str, db: Session) -> Row | None:
-    """
-    Login user
-    """
     select_query = (
         select(
             User.id,

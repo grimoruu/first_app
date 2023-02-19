@@ -6,7 +6,7 @@ class TaskSchemaResponse(BaseModel):
     name: str
     description: str
     list_id: int
-    ordering: str
+    ordering: float
 
 
 class TaskResponse(BaseModel):

@@ -6,19 +6,17 @@ from app.boards.schemas import BoardCreateSchema, BoardResponse, BoardSchemaResp
 from db.db import get_db
 
 
-def get_boards_service(user_id: int, db: Session = Depends(get_db)) -> list[BoardSchemaResponse]:
+def get_boards_service(user_id: int, db: Session) -> list[BoardSchemaResponse]:
     rows = get_users_board(user_id, db)
     return [BoardSchemaResponse(**row) for row in rows]
 
 
-def create_board_services(board_: BoardCreateSchema, user_id: int, db: Session = Depends(get_db)) -> BoardResponse:
+def create_board_services(board_: BoardCreateSchema, user_id: int, db: Session) -> BoardResponse:
     board = add_board(**board_.dict(), user_id=user_id, db=db)
     return BoardResponse(board_id=board.id, name=board.name)
 
 
-def update_board_services(
-    board_id: int, board_: BoardUpdateSchema, user_id: int, db: Session = Depends(get_db)
-) -> None:
+def update_board_services(board_id: int, board_: BoardUpdateSchema, user_id: int, db: Session) -> None:
     return update_board(**board_.dict(), board_id=board_id, user_id=user_id, db=db)
 
 
