@@ -53,7 +53,7 @@ def delete_list_api(
     delete_list_services(list_id=list_id, db=db, check=check)
 
 
-@router.post("/{list_id}/ordering", status_code=status.HTTP_200_OK)
+@router.post("/{list_id}/order", status_code=status.HTTP_200_OK)
 def ordering_list_api(
     ordering: ListOrdering,
     list_id: int,

@@ -1,5 +1,8 @@
 from pydantic import BaseModel, EmailStr
 
+from app.lists.schemas import ListResponse
+from app.tasks.schemas import TaskResponse
+
 
 class UsersSomeSchema(BaseModel):
     id: int
@@ -24,3 +27,8 @@ class BoardCreateSchema(BaseModel):
 
 class BoardUpdateSchema(BaseModel):
     name: str
+
+
+class DataSchemaResponse(BaseModel):
+    lists: list[ListResponse]
+    tasks: list[TaskResponse]

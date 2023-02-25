@@ -10,7 +10,7 @@ class TaskSchemaResponse(BaseModel):
 
 
 class TaskResponse(BaseModel):
-    task_id: int
+    id: int
     name: str
     description: str
     list_id: int

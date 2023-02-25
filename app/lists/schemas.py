@@ -6,12 +6,13 @@ class ListSchemaResponse(BaseModel):
     name: str
     board_id: int
     ordering: int
+    description: str | None
 
 
 class ListResponse(BaseModel):
-    list_id: int
+    id: int
     name: str
-    board_id: int
+    description: str | None
 
 
 class ListCreateSchema(BaseModel):

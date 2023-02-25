@@ -1,4 +1,4 @@
-from sqlalchemy import desc, insert, select, update
+from sqlalchemy import desc, func, insert, select, update
 from sqlalchemy.engine import Row
 from sqlalchemy.orm import Session
 
@@ -21,6 +21,7 @@ def get_lists(board_id: int, user_id: int, db: Session) -> list[Row]:
             List.name,
             List.board_id,
             List.ordering,
+            List.description
         )
         .join(Board)
         .where(
@@ -28,7 +29,25 @@ def get_lists(board_id: int, user_id: int, db: Session) -> list[Row]:
             List.board_id == board_id,
             List.is_deleted.is_(False),
         )
-        .order_by(List.ordering)
+        .order_by(desc(List.ordering))
+    )
+    return db.execute(query).fetchall()
+
+
+def get_specific_lists_data(board_id: int, user_id: int, db: Session) -> list[Row]:
+    query = (
+        select(
+            List.id,
+            List.name,
+            List.description
+        )
+        .join(Board)
+        .where(
+            Board.user_id == user_id,
+            List.board_id == board_id,
+            List.is_deleted.is_(False),
+        )
+        .order_by(desc(List.ordering))
     )
     return db.execute(query).fetchall()
 
@@ -64,4 +83,11 @@ def lists_ordering_change(list_id: int, ordering: float, db: Session) -> float:
 
 
 def update_all_lists_ordering(board_id: int, db: Session) -> None:
-    pass
+    subquery = (
+        select(List.id, func.row_number().over(order_by=List.ordering).label("row_num"))
+        .select_from(List)
+        .where(List.board_id == board_id)
+        .subquery()
+    )
+    query = update(List).values(ordering=subquery.c.row_num).where(List.board_id == board_id, List.id == subquery.c.id)
+    db.execute(query)

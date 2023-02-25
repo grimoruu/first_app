@@ -10,12 +10,13 @@ from app.lists.dao import (
     delete_list,
     get_lists,
     get_lists_ordering,
+    get_specific_lists_data,
     lists_ordering_change,
     select_lists_next_ordering,
     update_all_lists_ordering,
     update_list,
 )
-from app.lists.schemas import ListCreateSchema, ListSchemaResponse, ListUpdateSchema
+from app.lists.schemas import ListCreateSchema, ListResponse, ListSchemaResponse, ListUpdateSchema
 from core.auth_utils.auth import get_user_by_token
 from db.db import get_db
 
@@ -23,6 +24,11 @@ from db.db import get_db
 def get_lists_service(board_id: int, user_id: int, db: Session) -> list[ListSchemaResponse]:
     rows = get_lists(board_id=board_id, user_id=user_id, db=db)
     return [ListSchemaResponse(**_) for _ in rows]
+
+
+def get_specific_lists_data_service(board_id: int, user_id: int, db: Session) -> list[ListResponse]:
+    rows = get_specific_lists_data(board_id=board_id, user_id=user_id, db=db)
+    return [ListResponse(**row) for row in rows]
 
 
 def create_list_services(board_id: int, list_: ListCreateSchema, db: Session, check: bool) -> None:

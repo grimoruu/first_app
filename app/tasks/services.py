@@ -13,9 +13,9 @@ from app.tasks.dao import (
     select_tasks_next_ordering,
     tasks_ordering_change,
     update_all_task_ordering,
-    update_task,
+    update_task, get_specific_tasks_data,
 )
-from app.tasks.schemas import TaskCreateSchema, TaskOrdering, TaskSchemaResponse, TaskUpdateSchema
+from app.tasks.schemas import TaskCreateSchema, TaskOrdering, TaskSchemaResponse, TaskUpdateSchema, TaskResponse
 from core.auth_utils.auth import get_user_by_token
 from db.db import get_db
 
@@ -23,6 +23,11 @@ from db.db import get_db
 def get_tasks_service(list_id: int, board_id: int, user_id: int, db: Session) -> list:
     rows = get_tasks(list_id=list_id, board_id=board_id, user_id=user_id, db=db)
     return [TaskSchemaResponse(**_) for _ in rows]
+
+
+def get_specific_tasks_data_service(list_id: int, board_id: int, user_id: int, db: Session) -> list[TaskResponse]:
+    rows = get_specific_tasks_data(list_id=list_id, board_id=board_id, user_id=user_id, db=db)
+    return [TaskResponse(**_) for _ in rows]
 
 
 def create_task_services(task_: TaskCreateSchema, list_id: int, db: Session, check: bool) -> None:

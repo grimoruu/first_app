@@ -1,6 +1,6 @@
 from sqlalchemy import desc, func, insert, select, update
 from sqlalchemy.engine import Row
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.orm import Session
 
 from db.models import Board, List, Task
 
@@ -38,6 +38,27 @@ def get_tasks(list_id: int, board_id: int, user_id: int, db: Session) -> list[Ro
     return db.execute(query).fetchall()
 
 
+def get_specific_tasks_data(list_id: int, board_id: int, user_id: int, db: Session) -> list[Row]:
+    query = (
+        select(
+            Task.id,
+            Task.name,
+            Task.description,
+            Task.list_id,
+        )
+        .join(List, Task.list_id == List.id)
+        .join(Board, List.board_id == Board.id)
+        .where(
+            List.id == list_id,
+            Board.id == board_id,
+            Board.user_id == user_id,
+            Task.is_deleted.is_(False),
+        )
+        .order_by(desc(Task.ordering))
+    )
+    return db.execute(query).fetchall()
+
+
 def add_task(name: str, description: str, list_id: int, ordering: float, db: Session) -> None:
     query = insert(Task).values(name=name, description=description, list_id=list_id, ordering=ordering)
     db.execute(query)
@@ -71,8 +92,11 @@ def tasks_ordering_change(task_id: int, ordering: float, new_list_id: int, db: S
 
 
 def update_all_task_ordering(list_id: int, db: Session) -> None:
-    subq = select(Task.id, func.row_number().over(order_by=Task.ordering).label("row_num")).select_from(Task)\
-        .where(Task.list_id == list_id).subquery()
-    query = update(Task).values(ordering=subq.c.row_num).where(Task.list_id == list_id, Task.id == subq.c.id)
+    subquery = (
+        select(Task.id, func.row_number().over(order_by=Task.ordering).label("row_num"))
+        .select_from(Task)
+        .where(Task.list_id == list_id)
+        .subquery()
+    )
+    query = update(Task).values(ordering=subquery.c.row_num).where(Task.list_id == list_id, Task.id == subquery.c.id)
     db.execute(query)
-
