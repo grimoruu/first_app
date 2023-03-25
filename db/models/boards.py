@@ -8,5 +8,6 @@ class Board(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String, nullable=False)
+    description = Column(String, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     is_deleted = Column(Boolean, server_default="false")

@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Float, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, Numeric, String
 
 from db.db import Base
 
@@ -10,5 +10,5 @@ class List(Base):
     name = Column(String, nullable=False)
     description = Column(String, nullable=True)
     board_id = Column(Integer, ForeignKey("boards.id"))
-    ordering = Column(Float, nullable=False, server_default="0")
+    ordering = Column(Numeric, nullable=False, server_default="0")
     is_deleted = Column(Boolean, server_default="false")

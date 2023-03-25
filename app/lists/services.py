@@ -1,65 +1,53 @@
 from decimal import Decimal
 from math import trunc
 
-from fastapi import Depends, HTTPException, Path, status
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.lists.dao import (
     add_list,
-    check_true_users,
     delete_list,
     get_lists,
     get_lists_ordering,
-    get_specific_lists_data,
-    lists_ordering_change,
+    lists_ordering_update,
     select_lists_next_ordering,
-    update_all_lists_ordering,
+    update_board_lists_ordering,
     update_list,
 )
-from app.lists.schemas import ListCreateSchema, ListResponse, ListSchemaResponse, ListUpdateSchema
-from core.auth_utils.auth import get_user_by_token
-from db.db import get_db
+from app.lists.schemas import ListCreateSchema, ListGetDataResponse
+from core.db_utils import get_count_of_queries, get_paginated
+from core.pagination.schemas import PaginationParams
+from core.utils.number import number_length_check
 
 
-def get_lists_service(board_id: int, user_id: int, db: Session) -> list[ListSchemaResponse]:
-    rows = get_lists(board_id=board_id, user_id=user_id, db=db)
-    return [ListSchemaResponse(**_) for _ in rows]
+def get_lists_service(board_id: int, user_id: int, pagination: PaginationParams, *, db: Session) -> ListGetDataResponse:
+    query = get_lists(board_id, user_id)
+    total_count = get_count_of_queries(query, db=db)
+    items = get_paginated(query, pagination.limit, pagination.offset, db=db)
+    return ListGetDataResponse(total_count=total_count, offset=pagination.offset, limit=pagination.limit, items=items)
 
 
-def get_specific_lists_data_service(board_id: int, user_id: int, db: Session) -> list[ListResponse]:
-    rows = get_specific_lists_data(board_id=board_id, user_id=user_id, db=db)
-    return [ListResponse(**row) for row in rows]
+def create_list_services(board_id: int, *, list_create: ListCreateSchema, db: Session) -> None:
+    priority = get_lists_ordering(board_id, db=db)
+    ordering = Decimal(trunc(priority) + 1 if priority else 1)
+    add_list(list_create.name, list_create.description, board_id, ordering, db=db)
 
 
-def create_list_services(board_id: int, list_: ListCreateSchema, db: Session, check: bool) -> None:
-    order = get_lists_ordering(board_id=board_id, db=db)
-    ordering = trunc(order) + 1 if order else 1
-    add_list(**list_.dict(), board_id=board_id, ordering=ordering, db=db)
-
-
-def update_list_services(list_id: int, list_: ListUpdateSchema, db: Session, check: bool) -> None:
-    update_list(list_id=list_id, **list_.dict(), db=db)
-
-
-def delete_list_services(list_id: int, db: Session, check: bool) -> None:
-    delete_list(list_id=list_id, db=db)
-
-
-def lists_ordering_services(prev_list_ordering: float, list_id: int, board_id: int, db: Session, check: bool) -> None:
-    next_ordering = select_lists_next_ordering(prev_list_ordering=prev_list_ordering, board_id=board_id, db=db)
-    ordering = (next_ordering + prev_list_ordering) / 2 if next_ordering else prev_list_ordering / 2
-    new_order = lists_ordering_change(list_id=list_id, ordering=ordering, db=db)
-    if int(Decimal(str(new_order)).as_tuple().exponent * (-1)) > 5:
-        update_all_lists_ordering(board_id=board_id, db=db)
-
-
-def check_users_list_service(
-    board_id: int = Path(title="board_id"), user_id: int = Depends(get_user_by_token), db: Session = Depends(get_db)
-) -> bool:
-    if user_id == check_true_users(board_id=board_id, db=db):
-        return True
-    else:
+def update_list_services(list_id: int, *, list_update: dict, db: Session) -> None:
+    if not list_update:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Performing an operation on someone else's board",
+            status_code=status.HTTP_400_BAD_REQUEST, detail="One of 'description' or 'name' needs to be set"
         )
+    update_list(list_id, values=list_update, db=db)
+
+
+def delete_list_services(list_id: int, *, db: Session) -> None:
+    delete_list(list_id, db=db)
+
+
+def lists_ordering_services(prev_list_ordering: Decimal, list_id: int, board_id: int, *, db: Session) -> None:
+    next_ordering = select_lists_next_ordering(prev_list_ordering, board_id, db=db)
+    ordering = (next_ordering + prev_list_ordering) / 2 if next_ordering else prev_list_ordering / 2
+    lists_ordering_update(list_id, ordering, db=db)
+    if number_length_check(ordering):
+        update_board_lists_ordering(board_id, db=db)

@@ -4,17 +4,26 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/first_app"
+from core.config.settings import settings
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
+SQLALCHEMY_DATABASE_URL = settings.postgres.sqlalchemy_database_url()
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_engine(settings.postgres.sqlalchemy_database_url(), echo=settings.postgres.echo)
+
+
+WriteSessionLocal = sessionmaker(autocommit=False, autoflush=settings.postgres.autoflush, bind=engine)
+ReadSessionLocal = sessionmaker(autocommit=True, autoflush=settings.postgres.autoflush, bind=engine)
 
 Base = declarative_base()
 
 
-def get_db() -> Generator:
-    db = SessionLocal()
+def get_write_db() -> Generator:
+    db = WriteSessionLocal()
     yield db
     db.commit()
     db.close()
+
+
+def get_read_db() -> Generator:
+    db = ReadSessionLocal()
+    yield db

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from db.models import User
 
 
-def get_users(db: Session) -> list[Row]:
+def get_users(*, db: Session) -> list[Row]:
     query = select(
         User.id,
         User.username,

@@ -1,0 +1,13 @@
+---
+postgres:
+  user: postgres
+  password: postgres
+  host: localhost
+  port: 5432
+  db_name: first_app
+  echo: True
+  autoflush: False
+
+
+max_count:
+  max_count: 15

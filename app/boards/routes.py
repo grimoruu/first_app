@@ -1,65 +1,76 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
+from app.boards.depends import check_users_board_service
 from app.boards.schemas import (
     BoardCreateSchema,
-    BoardResponse,
-    BoardSchemaResponse,
-    BoardUpdateSchema, DataSchemaResponse,
+    BoardGetDataResponse,
+    BoardsSchemaResponse,
+    BoardUpdateSchema,
 )
 from app.boards.services import (
     create_board_services,
     delete_board_services,
-    get_boards_data,
+    get_boards_data_service,
     get_boards_service,
     update_board_services,
 )
 from app.lists.routes import router as lists_router
-from core.auth_utils.auth import get_user_by_token
-from db.db import get_db
+from app.users.depends import get_user_by_token
+from core.pagination.schemas import PaginationParams
+from db.db import get_read_db, get_write_db
 
 router = APIRouter()
 
 
-@router.get("", status_code=status.HTTP_200_OK, response_model=list[BoardSchemaResponse])
-def get_users_all_boards_api(
-    user_id: int = Depends(get_user_by_token), db: Session = Depends(get_db)
-) -> list[BoardSchemaResponse]:
-    return get_boards_service(user_id=user_id, db=db)
-
-
-@router.get("/{board_id}", status_code=status.HTTP_200_OK, response_model=DataSchemaResponse)
-def get_users_list_of_tasks_api(board_id: int, user_id: int = Depends(get_user_by_token),
-                                db: Session = Depends(get_db)) -> DataSchemaResponse:
-    return get_boards_data(board_id=board_id, user_id=user_id, db=db)
-
-
-@router.post("", status_code=status.HTTP_201_CREATED, response_model=BoardResponse)
-def create_board_api(
-    board: BoardCreateSchema,
+@router.get("", status_code=status.HTTP_200_OK, response_model=BoardsSchemaResponse)
+def get_boards_api(
     user_id: int = Depends(get_user_by_token),
-    db: Session = Depends(get_db),
-) -> BoardResponse:
-    return create_board_services(board_=board, user_id=user_id, db=db)
+    pagination: PaginationParams = Depends(),
+    db: Session = Depends(get_read_db),
+) -> BoardsSchemaResponse:
+    return get_boards_service(user_id, pagination, db=db)
+
+
+@router.get("/{board_id}", status_code=status.HTTP_200_OK, response_model=BoardGetDataResponse)
+def get_boards_data_api(
+    board_id: int,
+    user_id: int = Depends(get_user_by_token),
+    pagination: PaginationParams = Depends(),
+    db: Session = Depends(get_read_db),
+) -> BoardGetDataResponse:
+    return get_boards_data_service(board_id, user_id, pagination, db=db)
+
+
+@router.post("", status_code=status.HTTP_201_CREATED)
+def create_board_api(
+    board_create: BoardCreateSchema,
+    user_id: int = Depends(get_user_by_token),
+    db: Session = Depends(get_write_db),
+) -> None:
+    create_board_services(board_create, user_id, db=db)
 
 
 @router.patch("/{board_id}", status_code=status.HTTP_200_OK)
 def update_board_api(
     board_id: int,
-    board: BoardUpdateSchema,
+    board_update: BoardUpdateSchema,
     user_id: int = Depends(get_user_by_token),
-    db: Session = Depends(get_db),
-) -> None:
-    return update_board_services(board_id=board_id, board_=board, user_id=user_id, db=db)
+    _: None = Depends(check_users_board_service),
+    db: Session = Depends(get_write_db),
+) -> BoardUpdateSchema:
+    update_board_services(board_id, board_update.dict(exclude_unset=True), user_id, db=db)
+    return board_update
 
 
 @router.delete("/{board_id}", status_code=status.HTTP_200_OK)
 def delete_board_api(
     board_id: int,
     user_id: int = Depends(get_user_by_token),
-    db: Session = Depends(get_db),
+    _: None = Depends(check_users_board_service),
+    db: Session = Depends(get_write_db),
 ) -> None:
-    return delete_board_services(board_id=board_id, user_id=user_id, db=db)
+    delete_board_services(board_id, user_id, db=db)
 
 
 router.include_router(lists_router, prefix="/{board_id}/lists", tags=["list"])

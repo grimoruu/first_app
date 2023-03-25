@@ -20,6 +20,7 @@ passlib = {extras = ["argon2"], version = "^1.7.4"}
 black = "^23.1.0"
 sqlalchemy = {version = "1.4.46", extras = ["mypy"]}
 mypy = "^1.0.0"
+pyyaml = "^6.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -31,12 +32,13 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 line-length = 120
 select = ["F", "E", "I", "U", "N", "C", "B", "A", "T", "Q", "ANN", "RUF"]
-ignore = ["A003", "ANN101", "ANN401", "Q000", "E902", "B008", "B904"]
+ignore = ["A003", "ANN101", "ANN401", "Q000", "E902", "B008", "B904", "N805"]
 
 exclude = ["tests", ".venv", ".db", "venv", "experiment folder", "migrations"]
 
 [tool.mypy]
 plugins = "sqlalchemy.ext.mypy.plugin"
+ignore_missing_imports = true
 
 exclude = ["tests", ".venv", ".db", "venv", "migrations", "experiment folder"]
 

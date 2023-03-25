@@ -1,72 +1,64 @@
 from decimal import Decimal
 from math import trunc
 
-from fastapi import Depends, HTTPException, Path, status
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.tasks.dao import (
     add_task,
-    check_true_users,
     delete_task,
     get_task_ordering,
     get_tasks,
     select_tasks_next_ordering,
-    tasks_ordering_change,
+    tasks_ordering_update,
     update_all_task_ordering,
-    update_task, get_specific_tasks_data,
+    update_task,
 )
-from app.tasks.schemas import TaskCreateSchema, TaskOrdering, TaskSchemaResponse, TaskUpdateSchema, TaskResponse
-from core.auth_utils.auth import get_user_by_token
-from db.db import get_db
+from app.tasks.schemas import TaskCreateSchema, TaskGetDataResponse, TaskOrderingSchema
+from core.db_utils import get_paginated
+from core.pagination.schemas import PaginationParams
+from core.utils.number import get_count, number_length_check
 
 
-def get_tasks_service(list_id: int, board_id: int, user_id: int, db: Session) -> list:
-    rows = get_tasks(list_id=list_id, board_id=board_id, user_id=user_id, db=db)
-    return [TaskSchemaResponse(**_) for _ in rows]
+def get_tasks_service(
+    list_id: int | list, board_id: int, user_id: int, pagination: PaginationParams, *, db: Session
+) -> TaskGetDataResponse:
+    if isinstance(list_id, int):
+        list_id = [list_id]
+    query = get_tasks(list_id, board_id, user_id, pagination.limit, pagination.offset)
+    items = get_paginated(query, None, None, db=db)
+    total_count = get_count(items)
+    return TaskGetDataResponse(total_count=total_count, offset=pagination.offset, limit=pagination.limit, items=items)
 
 
-def get_specific_tasks_data_service(list_id: int, board_id: int, user_id: int, db: Session) -> list[TaskResponse]:
-    rows = get_specific_tasks_data(list_id=list_id, board_id=board_id, user_id=user_id, db=db)
-    return [TaskResponse(**_) for _ in rows]
+def create_task_services(task_create: TaskCreateSchema, list_id: int, *, db: Session) -> None:
+    priority = get_task_ordering(list_id, db=db)
+    ordering = Decimal(trunc(priority) + 1 if priority else 1)
+    add_task(task_create.name, task_create.description, list_id, ordering, db=db)
 
 
-def create_task_services(task_: TaskCreateSchema, list_id: int, db: Session, check: bool) -> None:
-    order = get_task_ordering(list_id=list_id, db=db)
-    ordering = trunc(order) + 1 if order else 1
-    add_task(**task_.dict(), ordering=ordering, list_id=list_id, db=db)
-
-
-def update_task_services(task_: TaskUpdateSchema, task_id: int, db: Session, check: bool) -> None:
-    update_task(**task_.dict(), task_id=task_id, db=db)
-
-
-def delete_task_services(task_id: int, db: Session, check: bool) -> None:
-    delete_task(task_id=task_id, db=db)
-
-
-def tasks_ordering_services(order: TaskOrdering, task_id: int, db: Session, check: bool) -> None:
-    if order.prev_task_ordering != 0:
-        next_ordering = select_tasks_next_ordering(
-            prev_task_ordering=order.prev_task_ordering, new_list_id=order.new_list_id, db=db
-        )
-        ordering = (next_ordering + order.prev_task_ordering) / 2 if next_ordering else order.prev_task_ordering / 2
-    else:
-        ordering = 1
-    new_order = tasks_ordering_change(task_id=task_id, ordering=ordering, new_list_id=order.new_list_id, db=db)
-    if int(Decimal(str(new_order)).as_tuple().exponent * (-1)) > 5:
-        update_all_task_ordering(list_id=order.new_list_id, db=db)
-
-
-def check_users_task_service(
-    list_id: int = Path(title="lists_id"),
-    board_id: int = Path(title="board_id"),
-    user_id: int = Depends(get_user_by_token),
-    db: Session = Depends(get_db),
-) -> bool:
-    if user_id == check_true_users(list_id=list_id, board_id=board_id, db=db):
-        return True
-    else:
+def update_task_services(task_update: dict, task_id: int, *, db: Session) -> None:
+    if not task_id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Performing an operation on someone else's board",
+            status_code=status.HTTP_400_BAD_REQUEST, detail="One of 'description' or 'name' needs to be set"
         )
+    update_task(task_id, values=task_update, db=db)
+
+
+def delete_task_services(task_id: int, *, db: Session) -> None:
+    delete_task(task_id, db=db)
+
+
+def tasks_ordering_services(task_ordering: TaskOrderingSchema, task_id: int, *, db: Session) -> None:
+    if task_ordering.prev_task_ordering != 0:
+        next_ordering = select_tasks_next_ordering(task_ordering.prev_task_ordering, task_ordering.new_list_id, db=db)
+        ordering = (
+            (next_ordering + task_ordering.prev_task_ordering) / 2
+            if next_ordering
+            else task_ordering.prev_task_ordering / 2
+        )
+    else:
+        ordering = Decimal(1)
+    tasks_ordering_update(task_id, ordering, task_ordering.new_list_id, db=db)
+    if number_length_check(ordering):
+        update_all_task_ordering(task_ordering.new_list_id, db=db)
