@@ -8,8 +8,8 @@ class ScopeAuthEnum(str, Enum):
 
 
 class ExpirationTime(Enum):
-    ACCESS_TOKEN_EXPIRE_TIME = timedelta(seconds=6 * 60 * 60)
-    REFRESH_TOKEN_EXPIRE_TIME = timedelta(seconds=100 * 60)
+    ACCESS_TOKEN_EXPIRE_TIME = timedelta(seconds=48 * 60 * 60)  # 48 hours
+    REFRESH_TOKEN_EXPIRE_TIME = timedelta(seconds=480 * 60 * 60)  # 480 hours
 
 
 class SecretKeys(str, Enum):

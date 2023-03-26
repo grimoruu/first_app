@@ -1,7 +1,6 @@
 from decimal import Decimal
 from math import trunc
 
-from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.lists.dao import (
@@ -34,10 +33,6 @@ def create_list_services(board_id: int, *, list_create: ListCreateSchema, db: Se
 
 
 def update_list_services(list_id: int, *, list_update: dict, db: Session) -> None:
-    if not list_update:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="One of 'description' or 'name' needs to be set"
-        )
     update_list(list_id, values=list_update, db=db)
 
 

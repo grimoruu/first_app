@@ -1,7 +1,6 @@
 from decimal import Decimal
 from math import trunc
 
-from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.tasks.dao import (
@@ -26,8 +25,8 @@ def get_tasks_service(
     if isinstance(list_id, int):
         list_id = [list_id]
     query = get_tasks(list_id, board_id, user_id, pagination.limit, pagination.offset)
-    items = get_paginated(query, None, None, db=db)
-    total_count = get_count(items)
+    items = get_paginated(query, None, None, db=db)  # questionable
+    total_count = get_count(items)  # questionable
     return TaskGetDataResponse(total_count=total_count, offset=pagination.offset, limit=pagination.limit, items=items)
 
 
@@ -38,10 +37,6 @@ def create_task_services(task_create: TaskCreateSchema, list_id: int, *, db: Ses
 
 
 def update_task_services(task_update: dict, task_id: int, *, db: Session) -> None:
-    if not task_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="One of 'description' or 'name' needs to be set"
-        )
     update_task(task_id, values=task_update, db=db)
 
 

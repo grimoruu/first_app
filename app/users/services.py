@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
 
 from app.users.dao import get_users
-from app.users.schemas import UserSchema
+from app.users.schemas import UserSchemaResponse
 
 
-def get_users_service(db: Session) -> list[UserSchema]:
-    rows: list = get_users(db=db)
-    return [UserSchema(**row) for row in rows]
+def get_users_service(db: Session) -> UserSchemaResponse:
+    items = get_users(db=db)
+    return UserSchemaResponse(items=items)

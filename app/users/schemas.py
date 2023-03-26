@@ -6,3 +6,7 @@ class UserSchema(BaseModel):
     username: str
     hashed_password: str
     email: str
+
+
+class UserSchemaResponse(BaseModel):
+    items: list[UserSchema]

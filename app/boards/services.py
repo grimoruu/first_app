@@ -1,4 +1,3 @@
-from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.boards.dao import add_board, delete_board, get_users_board, update_board
@@ -36,10 +35,6 @@ def create_board_services(board_create: BoardCreateSchema, user_id: int, *, db: 
 
 
 def update_board_services(board_id: int, board_update: dict, user_id: int, *, db: Session) -> None:
-    if not board_update:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="One of 'description' or 'name' needs to be set"
-        )
     update_board(board_id, board_update, user_id, db=db)
 
 
